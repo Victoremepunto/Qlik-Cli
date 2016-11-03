@@ -1,4 +1,4 @@
-$script:guid = "^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$"
+$script:guid = "^(\{){0,1}[0-F]{8}\-[0-F]{4}\-[0-F]{4}\-[0-F]{4}\-[0-F]{12}(\}){0,1}$"
 $script:isDate = "^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$"
 if( $qlik_output_raw ) { $rawOutput = $true }
 
@@ -14,14 +14,18 @@ function GetXrfKey() {
   return $key
 }
 
-function DeepCopy($data) {
-  $ms = New-Object System.IO.MemoryStream
-  $bf = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-  $bf.Serialize($ms, $data)
-  $ms.Position = 0
-  $dataDeep = $bf.Deserialize($ms)
-  $ms.Close()
-  return $dataDeep
+function DeepCopy($data) {       
+<#    
+    $ms = New-Object System.IO.MemoryStream
+    $bf = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+    $bf.Serialize($ms, $data)
+    $ms.Position = 0
+    $dataDeep = $bf.Deserialize($ms)
+    $ms.Close()
+    return $dataDeep
+    #>
+
+    return $data.Clone()
 }
 
 function GetCustomProperties($customProperties) {

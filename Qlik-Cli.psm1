@@ -15,7 +15,7 @@ function GetXrfKey() {
 }
 
 function DeepCopy($data) {       
-<#    
+    
     $ms = New-Object System.IO.MemoryStream
     $bf = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
     $bf.Serialize($ms, $data)
@@ -23,9 +23,9 @@ function DeepCopy($data) {
     $dataDeep = $bf.Deserialize($ms)
     $ms.Close()
     return $dataDeep
-    #>
-
-    return $data.Clone()
+    
+    #TODO
+    #return $data.Clone()
 }
 
 function GetCustomProperties($customProperties) {

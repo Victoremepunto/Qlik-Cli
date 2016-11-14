@@ -29,7 +29,8 @@ InModuleScope Qlik-Cli {
             }
 
             It "DeepCopy 'deepcopies' the input to the output" {
-                
+
+                # TODO- Replace with clone and remove test
                 $param =  @{ foo = "foo" }
 
                 $result = DeepCopy $param
@@ -52,6 +53,28 @@ InModuleScope Qlik-Cli {
                 #    $result.$key | Should Be $param.$key 
                 #}
 
+            }
+
+            It "extracts custom properties" {
+
+                $firstParam = @{ choiceValues = @("foobar") }
+                $secondParam = @{ choiceValues = @("barbara") }
+
+                #Mock Get-QlikCustomProperty {} -Verifiable -ParameterFilter { $filter -eq "name eq 'foo'" }
+                Mock Get-QlikCustomProperty { $firstParam } -Verifiable -ParameterFilter { $filter -eq "name eq 'foo'" }
+                Mock Get-QlikCustomProperty { $secondParam } -Verifiable -ParameterFilter { $filter -eq "name eq 'bar'" }
+
+                $param = @("foo=foobar", "bar=barbara")
+
+                $result = GetCustomProperties $param
+
+                Assert-VerifiableMocks
+
+                $result.Count | Should Be 2
+                $result[0].value | Should Be "foobar"
+                $result[0].definition | Should Be $firstParam
+                $result[1].value | Should Be "barbara"
+                $result[1].definition | Should Be $secondParam
             }
         }
     }

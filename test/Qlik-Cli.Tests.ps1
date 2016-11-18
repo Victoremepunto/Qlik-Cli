@@ -43,38 +43,43 @@ InModuleScope Qlik-Cli {
                 
                 $param.ContainsKey("bar") | Should Be $false
 
-                
-                #$result | Should Be @{ foo = "foo" ; bar = "bar"}
-                #$result | Should Be @{bar = "bar" ; foo = "foo"}
-
-                #$result.Count | Should Be $param.Count 
-
-                #foreach ($key in $result.Keys) {
-                #    $result.$key | Should Be $param.$key 
-                #}
-
             }
 
             It "extracts custom properties" {
 
-                $firstParam = @{ choiceValues = @("foobar") }
-                $secondParam = @{ choiceValues = @("barbara") }
+                # Refactor
+                $customPropertiesMock = @(
+                    @{ id="00000000-0000-0000-0000-000000000000"
+                       name="Fruit"
+                       valueType = "Text"
+                       choiceValues = @("apple", "banana", "orange")
+                       privileges = $null
+                    },
+                    @{ id="00000000-0000-0000-0000-000000000001"
+                       name="Color"
+                       valueType = "Text"
+                       choiceValues = @("red", "green", "blue")
+                       privileges = $null
+                    }
+                )
 
-                #Mock Get-QlikCustomProperty {} -Verifiable -ParameterFilter { $filter -eq "name eq 'foo'" }
-                Mock Get-QlikCustomProperty { $firstParam } -Verifiable -ParameterFilter { $filter -eq "name eq 'foo'" }
-                Mock Get-QlikCustomProperty { $secondParam } -Verifiable -ParameterFilter { $filter -eq "name eq 'bar'" }
+                Mock Get-QlikCustomProperty { $customPropertiesMock[0] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Fruit'" }
+                Mock Get-QlikCustomProperty { $customPropertiesMock[1] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Color'" }
+                Mock Get-QlikCustomProperty {}
 
-                $param = @("foo=foobar", "bar=barbara")
+                $param = @("Fruit=apple", "Color=green", "foo=bar")
 
                 $result = GetCustomProperties $param
 
                 Assert-VerifiableMocks
 
-                $result.Count | Should Be 2
-                $result[0].value | Should Be "foobar"
-                $result[0].definition | Should Be $firstParam
-                $result[1].value | Should Be "barbara"
-                $result[1].definition | Should Be $secondParam
+                $result.Count | Should Be 3
+                $result[0].value | Should Be "apple"
+                $result[0].definition | Should Be $customPropertiesMock[0]
+                $result[1].value | Should Be "green"
+                $result[1].definition | Should Be $customPropertiesMock[1]
+                $result[2].value |Should Be $false
+                $result[2].definition | Should Be $null
             }
         }
     }

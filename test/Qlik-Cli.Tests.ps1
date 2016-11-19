@@ -65,7 +65,7 @@ InModuleScope Qlik-Cli {
 
                 Mock Get-QlikCustomProperty { $customPropertiesMock[0] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Fruit'" }
                 Mock Get-QlikCustomProperty { $customPropertiesMock[1] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Color'" }
-                Mock Get-QlikCustomProperty {}
+                Mock Get-QlikCustomProperty {} -Verifiable
 
                 $param = @("Fruit=apple", "Color=green", "foo=bar")
 
@@ -80,6 +80,34 @@ InModuleScope Qlik-Cli {
                 $result[1].definition | Should Be $customPropertiesMock[1]
                 $result[2].value |Should Be $false
                 $result[2].definition | Should Be $null
+            }
+
+            It "extracts tags" {
+
+               # Refactor
+                $TagsMock = @(
+                    @{ id="00000000-0000-0000-0000-000000000000"
+                       name="Foo"
+                       privileges = $null
+                    },
+                    @{ id="00000000-0000-0000-0000-000000000001"
+                       name="Bar"
+                       privileges = $null
+                    }
+                )
+
+                Mock Get-QlikTag { $TagsMock[0] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Foo'"}
+                Mock Get-QlikTag { $TagsMock[1] } -Verifiable -ParameterFilter { $filter -eq "name eq 'Bar'"}
+                Mock Get-QlikTag { } -Verifiable
+
+                $result = GetTags @("Foo","Bar","Baz")
+
+                Assert-VerifiableMocks
+
+                $result.Count | Should Be 3
+                $result[0].id | Should Be $TagsMock[0].id
+                $result[1].id | Should Be $TagsMock[1].id
+                $result[2].id | Should Be $null
             }
         }
     }

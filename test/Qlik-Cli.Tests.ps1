@@ -33,32 +33,6 @@ InModuleScope Qlik-Cli {
         }
     }
 
-    Describe "DeepCopy performs a deep copy of an object" {
-
-        # TODO- Replace with clone and remove test
-        $param =  @{ foo = "foo" }
-
-        $result = DeepCopy $param
-
-        It "has the same number of values" {
-
-            $result.Count | Should Be $param.Count
-        }
-
-        It "has the same values" {
-
-            $param.foo | Should Be $result.foo
-        }
-
-        It "is not the same object" {
-
-            $result.Add("bar","bar")                
-            $param.ContainsKey("bar") | Should Be $false
-
-        }
-
-    }
-
     Describe "extracts custom properties" {
 
         # Refactor
@@ -151,9 +125,10 @@ InModuleScope Qlik-Cli {
             $expectedPath = $expectedPrefix + $basePath + "?xrfkey=$fixedXrfKey"
             $expectedResult = @{ some = "result" }
 
+            Set-Variable -Name "api_params" -Scope "script" -Value @{}
+
             Mock Connect-Qlik {} -Verifiable
             Mock GetXrfKey { $fixedXrfKey }
-            Mock DeepCopy { @{} }
             Mock FormatOutput { $expectedResult }
             Mock Invoke-RestMethod { $expectedResult } -Verifiable
         }

@@ -14,20 +14,6 @@ function GetXrfKey() {
   return $key
 }
 
-function DeepCopy($data) {       
-    
-    $ms = New-Object System.IO.MemoryStream
-    $bf = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-    $bf.Serialize($ms, $data)
-    $ms.Position = 0
-    $dataDeep = $bf.Deserialize($ms)
-    $ms.Close()
-    return $dataDeep
-    
-    #TODO
-    #return $data.Clone()
-}
-
 function GetCustomProperties($customProperties) {
   $prop = @(
     $customProperties | foreach {
@@ -67,7 +53,7 @@ function CallRestUri($method, $path, $extraParams) {
   } else {
     $path += "?xrfkey=$xrfKey"
   }
-  $params = DeepCopy $api_params
+  $params = $api_params.Clone()
   If( $extraParams ) { $params += $extraParams }
   If( !$params.Header ) { $params.Header = @{} }
   If( !$params.Header.ContainsKey("x-Qlik-Xrfkey") ) {

@@ -40,6 +40,18 @@ function GetTags($tags) {
   return $prop
 }
 
+function GetApiParams() {
+
+  $params = $api_params.Clone();
+
+  if ($api_params.Header) {
+    $params.Header = $api_params.Header.Clone()
+  }
+
+  return $params
+
+}
+
 function CallRestUri($method, $path, $extraParams) {
   Write-Verbose "Raw output: $rawOutput"
   If( $Script:prefix -eq $null ) { Connect-Qlik > $null }
@@ -53,7 +65,9 @@ function CallRestUri($method, $path, $extraParams) {
   } else {
     $path += "?xrfkey=$xrfKey"
   }
-  $params = $api_params.Clone()
+
+  $params = GetApiParams
+
   If( $extraParams ) { $params += $extraParams }
   If( !$params.Header ) { $params.Header = @{} }
   If( !$params.Header.ContainsKey("x-Qlik-Xrfkey") ) {

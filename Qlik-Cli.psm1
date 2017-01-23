@@ -75,11 +75,16 @@ function CallRestUri($method, $path, $extraParams) {
   Write-Verbose "Calling $method for $path"
   If( $script:webSession -eq $null ) {
     #$result = Invoke-RestMethod -Method $method -Uri $path @params -SessionVariable webSession
-    $result = Invoke-RestMethod -Method $method -Uri $path -Body @params -SessionVariable webSession
+    $result = Invoke-RestMethod -Method $method -Uri $path -Certificate $params.Certificate -Headers $params.Header  -SessionVariable webSession
     $script:webSession = $webSession
   } else {
+
     #$result = Invoke-RestMethod -Method $method -Uri $path @params -WebSession $script:webSession
-    $result = Invoke-RestMethod -Method $method -Uri $path -WebSession $script:webSession
+    if ($params.Header.'x-Qlik-User') {
+        $params.Header.Remove("X-Qlik-User")
+    }
+
+    $result = Invoke-RestMethod -Method $method -Uri $path -Headers $params.Header -WebSession $script:webSession
   }
 
   if( !$rawOutput ) {
